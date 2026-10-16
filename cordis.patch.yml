@@ -1,0 +1,13 @@
+# dsh-delete-session —— 随包分发的 profile patch（dsh.bundle 机制自动应用）
+#
+# 本文件由 `dsh plugin --profile <name> add dsh-delete-session` 自动注册：
+# 包 manifest 的 dsh.bundle.patch 指向本文件，安装后包会被加入 profile 的
+# dsh.profile.bundles 层，本 patch 即作为该层生效，无需手动编辑 cordis.patch.yml。
+#
+# 手动兜底（不使用 dsh plugin 时，把下行加入 profile 的 cordis.patch.yml）：
+#   - insert:
+#       - id: dsh-delete-session
+#         name: dsh-delete-session
+- insert:
+    - id: dsh-delete-session
+      name: dsh-delete-session
