@@ -22,8 +22,17 @@
     "index.js",
     "client.js",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lingshidu/dsh-delete-session.git"
+  },
+  "homepage": "https://github.com/lingshidu/dsh-delete-session#readme",
+  "bugs": {
+    "url": "https://github.com/lingshidu/dsh-delete-session/issues"
+  },
   "keywords": [
     "dsh",
     "deepseek-harness",

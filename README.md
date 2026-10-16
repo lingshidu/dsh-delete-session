@@ -58,10 +58,14 @@ DSH（DeepSeek Harness）**0.2.x** 的会话「永久删除」插件。
 ## 安装
 
 ```bash
+# 直接从 GitHub 安装
+dsh plugin --profile <profile> add github:lingshidu/dsh-delete-session
+
+# 或从本地目录（file: 协议；pnpm 会复制而非软链，改动源码后需重新执行安装）
 dsh plugin --profile <profile> add /path/to/dsh-delete-session
 ```
 
-本地目录用 `file:` 协议（pnpm 会复制而非软链，改动源码后需重新执行安装）。安装后插件管理器会自动把它写入 profile 的 `dsh.profile.bundles`。
+安装后插件管理器会自动把它写入 profile 的 `dsh.profile.bundles`。
 
 **安装后需要重载窗口**（Ctrl+R）或重启 DSH，客户端半才会被加载。
 
