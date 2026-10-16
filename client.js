@@ -43,7 +43,10 @@ window.__ModuleLoader__.load({
 			"confirm.pending": "Deleting\u2026",
 			"cancel": "Cancel",
 			"close": "Close",
-			"error.live": "This session is currently open. Close it before deleting.",
+			"done.title": "Session deleted",
+			"done.resident": "The session files were removed, but the session was still resident in memory. Restart DSH to make the deletion fully permanent.",
+			"error.running": "This session is running a turn. Stop it before deleting.",
+			"error.busy": "This session is still open in a view. Switch to another session, then delete it.",
 			"error.missing": "Session not found \u2014 it may already be deleted.",
 			"error.bad-args": "Invalid request.",
 			"error.no-location": "Could not locate this session's files on disk.",
@@ -64,7 +67,10 @@ window.__ModuleLoader__.load({
 			"confirm.pending": "\u6b63\u5728\u5220\u9664\u2026",
 			"cancel": "\u53d6\u6d88",
 			"close": "\u5173\u95ed",
-			"error.live": "\u8be5\u4f1a\u8bdd\u6b63\u5728\u6253\u5f00\uff0c\u8bf7\u5148\u5173\u95ed\u5b83\u518d\u5220\u9664\u3002",
+			"done.title": "\u5df2\u5220\u9664\u4f1a\u8bdd",
+			"done.resident": "\u4f1a\u8bdd\u6587\u4ef6\u5df2\u5220\u9664\uff0c\u4f46\u5b83\u4ecd\u9a7b\u7559\u5728\u5185\u5b58\u4e2d\u3002\u91cd\u542f DSH \u53ef\u786e\u4fdd\u5f7b\u5e95\u751f\u6548\u3002",
+			"error.running": "\u8be5\u4f1a\u8bdd\u6b63\u5728\u8fd0\u884c\u4e2d\uff08\u6709\u8fdb\u884c\u4e2d\u7684\u56de\u5408\uff09\u3002\u8bf7\u5148\u505c\u6b62\u5b83\u518d\u5220\u9664\u3002",
+			"error.busy": "\u8be5\u4f1a\u8bdd\u4ecd\u5728\u67d0\u4e2a\u89c6\u56fe\u4e2d\u6253\u5f00\u3002\u8bf7\u5148\u5207\u6362\u5230\u5176\u4ed6\u4f1a\u8bdd\uff0c\u518d\u5220\u9664\u5b83\u3002",
 			"error.missing": "\u672a\u627e\u5230\u8be5\u4f1a\u8bdd\uff0c\u53ef\u80fd\u5df2\u88ab\u5220\u9664\u3002",
 			"error.bad-args": "\u8bf7\u6c42\u53c2\u6570\u65e0\u6548\u3002",
 			"error.no-location": "\u65e0\u6cd5\u5b9a\u4f4d\u8be5\u4f1a\u8bdd\u7684\u78c1\u76d8\u6587\u4ef6\u3002",
@@ -78,7 +84,7 @@ window.__ModuleLoader__.load({
 
 		/* 已知错误码白名单：只对这些码显示专门文案，其余走 unknown(+detail)。 */
 		var KNOWN_ERROR_CODES = {
-			live: 1, missing: 1, "bad-args": 1, "no-location": 1, "bad-path": 1,
+			running: 1, busy: 1, missing: 1, "bad-args": 1, "no-location": 1, "bad-path": 1,
 			"not-a-session-dir": 1, "readdir-failed": 1, "list-failed": 1, "rm-failed": 1,
 		};
 
@@ -193,6 +199,9 @@ window.__ModuleLoader__.load({
 			var errorPair = react.useState(null);
 			var error = errorPair[0];
 			var setError = errorPair[1];
+			var noticePair = react.useState(null);
+			var notice = noticePair[0];
+			var setNotice = noticePair[1];
 
 			var close = function () {
 				if (busy) return;
@@ -220,6 +229,11 @@ window.__ModuleLoader__.load({
 					.then(function (result) {
 						setBusy(false);
 						if (result.ok && result.data !== null && result.data.ok === true) {
+							/* 内存态未能释放时不立刻关闭：告知用户重启可确保彻底生效。 */
+							if (result.data.resident === true) {
+								setNotice(t("done.resident"));
+								return;
+							}
 							clearPending();
 							return;
 						}
@@ -262,6 +276,26 @@ window.__ModuleLoader__.load({
 						{ key: "error", role: "alert", className: "dsd-error" },
 						error,
 					),
+				);
+			}
+
+			/* 删除已完成但内存态仍在：显示结果说明而非直接关闭。 */
+			if (notice !== null) {
+				return react.createElement(
+					primitives.Modal,
+					{
+						open: true,
+						onClose: clearPending,
+						closeLabel: t("close"),
+						title: t("done.title"),
+						description: notice,
+						footer: react.createElement(
+							primitives.Button,
+							{ variant: "outline", onClick: clearPending },
+							t("close"),
+						),
+					},
+					null,
 				);
 			}
 
